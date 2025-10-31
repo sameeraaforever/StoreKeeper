@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use Yajra\DataTables\DataTables;
 
 class HomeController extends Controller
 {
@@ -28,13 +27,4 @@ class HomeController extends Controller
         return view('home');
     }
 
-    public function getUsers(){
-       $model = User::query();
-
-        return DataTables::of($model)  // <-- use of() instead of eloquent()
-            ->addColumn('action', function ($user) {
-                return '<a href="/users/' . $user->id . '/edit" class="btn btn-sm btn-primary">Edit</a>';
-            })
-        ->toJson();
-    }
 }

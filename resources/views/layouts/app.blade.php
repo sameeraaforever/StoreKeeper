@@ -77,36 +77,8 @@
 
   });
 </script>
-
-
-    <script type="text/javascript">
-        
-            $('#users-table').DataTable({
-                processing: true,
-                serverSide: true,
-                ajax: "{{ route('users.data') }}",
-                columns: [
-                    { data: 'id', name: 'id' },
-                    { data: 'name', name: 'name' },
-                    { data: 'email', name: 'email' },
-                    { 
-                        data: 'created_at', 
-                        name: 'created_at',
-                        render: function(data) {
-                            return new Date(data).toLocaleDateString();
-                        }
-                    },
-                    { data: 'action', name: 'action', orderable: false, searchable: false }
-                ]
-            });        
       
-    
-    
-         @yield('footer_js')
-               
-           
-    </script>
-      
-    
+    @yield('footer_js')
+
 </body>
 </html>

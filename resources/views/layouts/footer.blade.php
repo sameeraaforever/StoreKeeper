@@ -29,8 +29,8 @@
                                     
                                     </div>
                                     <div class="col-md-6">
-                                    <p class="copyright d-flex justify-content-end"> &copy 2021 Design by
-                                            <a href="#">test</a> BootStrap Admin Dashboard
+                                    <p class="copyright d-flex justify-content-end"> &copy 2025 Design by
+                                            <a href="#"> sameeraa4ever</a> 
                                         </p>
                                     </div>
                                 </div>

@@ -95,18 +95,6 @@
 
                                     <div class="card-content table-responsive">
 
-                                    <table id="users-table" class="table table-striped table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>ID</th>
-                                                <th>Name</th>
-                                                <th>Email</th>
-                                                <th>Created At</th>
-                                                <th>Actions</th>
-                                            </tr>
-                                        </thead>
-                                    </table>
-
                                         <table class="table table-hover">
                                             <thead class="text-primary">
                                                 <tr><th>ID</th>
