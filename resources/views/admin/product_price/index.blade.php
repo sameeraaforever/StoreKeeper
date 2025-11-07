@@ -10,10 +10,7 @@
 
     <div class="card mb-3">
         <div class="card-body d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">Product Prices</h5>
-            <div>
-                <button class="btn btn-success" id="btnOpenCreate">Add Price</button>
-            </div>
+            <h5 class="mb-0">Prices History</h5>
         </div>
     </div>
 
@@ -168,10 +165,6 @@
 
 @endsection
 
-@section('footer_js_links')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-@endsection
 
 @section('footer_js')
 <script>
@@ -192,6 +185,7 @@ $(function() {
     var table = $('#prices-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: '{{ route("product-prices.index") }}',
             dataSrc: 'data'

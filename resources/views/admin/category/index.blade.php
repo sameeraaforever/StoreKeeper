@@ -137,6 +137,7 @@ $(function() {
     var table = $('#categories-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: '{{ route("categories.index") }}',
             dataSrc: 'data'

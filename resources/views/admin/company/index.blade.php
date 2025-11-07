@@ -151,11 +151,6 @@
 
 @endsection
 
-@section('footer_js_links')
-    <!-- DataTables JS (only for this page) -->
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-@endsection
 
 @section('footer_js')
 <script>
@@ -180,6 +175,7 @@ $(function() {
     var table = $('#companies-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: '{{ route("companies.index") }}',
             dataSrc: 'data'

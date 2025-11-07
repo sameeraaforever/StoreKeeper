@@ -36,9 +36,7 @@ class ProductPriceController extends Controller
                 })
                 ->addColumn('actions', function ($row) {
                     $showBtn = '<button class="btn btn-sm btn-soft-primary btn-show" data-id="'.$row->id.'"><i class="fa-solid fa-eye"></i></button>';
-                    $editBtn = '<button class="btn btn-sm btn-soft-warning btn-edit" data-id="'.$row->id.'"><i class="fa-solid fa-edit"></i></button>';
-                    $delBtn  = '<button class="btn btn-sm btn-soft-danger btn-delete" data-id="'.$row->id.'"><i class="fa-solid fa-trash"></i></button>';
-                    return '<div class="d-flex justify-content-center gap-2">'.$showBtn.$editBtn.$delBtn.'</div>';
+                    return '<div class="d-flex justify-content-center gap-2">'.$showBtn.'</div>';
                 })
                 ->rawColumns(['actions'])
                 ->make(true);

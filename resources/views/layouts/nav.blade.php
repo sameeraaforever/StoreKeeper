@@ -16,14 +16,35 @@
                         <!-- Right: Menu items -->
                         <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
                             <ul class="navbar-nav ms-auto">
-                            <li class="nav-item"><a class="nav-link" href="#"><i class="fa-solid fa-pen-to-square"></i></a></li>
-                            <li class="nav-item"><a class="nav-link" href="#"><i class="fa-regular fa-user"></i></a></li>
-                            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-                                @csrf
-                            </form>
-                            <li class="nav-item"><a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fa-solid fa-pen-to-square"></i></a></li>
+                                
+                                <li class="nav-item d-flex align-items-center">
+                                    @php
+                                        $auth = Auth::user();
+                                        $profileImg = $auth->profile_picture
+                                            ? asset('storage/' . $auth->profile_picture)
+                                            : asset('storage/images/default.jpg');
+                                    @endphp
+
+                                    <a class="nav-link d-flex align-items-center gap-2" href="#">
+                                        <img src="{{ $profileImg }}" width="40" height="40" class="rounded-circle" alt="Profile">
+                                        Profile
+                                    </a>
+                                </li>
+
+                                <li class="nav-item d-flex align-items-center">
+                                    <a class="nav-link d-flex align-items-center gap-2"
+                                    href="#"
+                                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                                    </a>
+                                </li>
+
+                                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                                    @csrf
+                                </form>
                             </ul>
                         </div>
+
 
                         </div>
                     </nav>

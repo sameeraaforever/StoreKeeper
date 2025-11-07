@@ -61,9 +61,9 @@
                 </div>
 
                 <div class="col-md-4 text-end">
-                    <button id="btnFilter" class="btn btn-primary">Filter</button>
-                    <button id="btnClear" class="btn btn-secondary">Clear</button>
+                    <button id="btnFilter" class="btn btn-soft-primary">Filter</button>
                     <a id="exportExcel" class="btn btn-outline-success">Export</a>
+                    <button id="btnClear" class="btn btn-secondary">Clear</button>
                 </div>
             </div>
 
@@ -77,11 +77,10 @@
                     <tr>
                         <th>ID</th>
                         <th>Company</th>
-                        <th>Location</th>
                         <th>Product</th>
                         <th>Qty</th>
-                        <th>Unit Price</th>
-                        <th>Total</th>
+                        <th>Unit Price (Rs)</th>
+                        <th>Total (Rs)</th>
                         <th>Supply Date</th>
                         <th>Added By</th>
                         <th style="width:160px">Actions</th>
@@ -135,27 +134,27 @@
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Quantity</label>
-                    <input type="number" step="0.001" name="quantity" id="create_quantity" class="form-control" required value="0">
+                    <input type="number"  name="quantity" id="create_quantity" class="form-control" required value="0">
                 </div>
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Unit Price</label>
-                    <input type="number" step="0.0001" name="unit_price" id="create_unit_price" class="form-control" required value="0">
+                    <input type="number" step="0.01" readonly name="unit_price" id="create_unit_price" class="form-control" required value="0">
                 </div>
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Total</label>
-                    <input type="text" id="create_total_amount" class="form-control" readonly>
+                    <input type="text" id="create_total_amount" name="create_total_amount"  class="form-control" readonly>
                 </div>
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Supply Date</label>
-                    <input type="date" name="supply_date" id="create_supply_date" class="form-control">
+                    <input type="date" name="supply_date" id="create_supply_date" class="form-control" required>
                 </div>
             </div>
 
             <div class="mt-2 small text-muted">
-                Unit price auto-filled from price history for selected product and date (can be edited).
+                <p class="mt-2" id="stockInfo" style="font-weight:bold;"></p> <p class="mt-2" id="stockInfoNew" style="font-weight:bold;"></p> Unit price auto-filled from price history for selected product and date (can be edited).
             </div>
         </div>
 
@@ -203,7 +202,7 @@
 
                 <div class="col-md-4">
                     <label class="form-label">Product</label>
-                    <select id="edit_product_id" name="product_id" class="form-select" required>
+                    <select id="edit_product_id" name="product_id" class="form-select" required data-original_edit_product_id=''>
                         <option value="">-- select product --</option>
                         @foreach($products as $p)
                             <option value="{{ $p->id }}">{{ $p->name }}</option>
@@ -213,7 +212,7 @@
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Quantity</label>
-                    <input type="number" step="0.001" name="quantity" id="edit_quantity" class="form-control" required>
+                    <input type="number" step="0.001" name="quantity" data-original_edit_quantity='' id="edit_quantity" class="form-control" required>
                 </div>
 
                 <div class="col-md-3 mt-2">
@@ -228,8 +227,12 @@
 
                 <div class="col-md-3 mt-2">
                     <label class="form-label">Supply Date</label>
-                    <input type="date" name="supply_date" id="edit_supply_date" class="form-control">
+                    <input type="date" name="supply_date" id="edit_supply_date" class="form-control" required>
                 </div>
+            </div>
+
+            <div class="mt-2 small text-muted">
+                <p class="mt-2" id="stockInfoEdit" style="font-weight:bold;"></p> <p class="mt-2" id="stockInfoEditNew" style="font-weight:bold;"></p> Unit price auto-filled from price history for selected product and date (can be edited).
             </div>
 
         </div>
@@ -258,8 +261,8 @@
                     <tr><th>Location</th><td id="show_location"></td></tr>
                     <tr><th>Product</th><td id="show_product"></td></tr>
                     <tr><th>Quantity</th><td id="show_quantity"></td></tr>
-                    <tr><th>Unit Price</th><td id="show_unit_price"></td></tr>
-                    <tr><th>Total</th><td id="show_total"></td></tr>
+                    <tr><th>Unit Price (Rs)</th><td id="show_unit_price"></td></tr>
+                    <tr><th>Total (Rs)</th><td id="show_total"></td></tr>
                     <tr><th>Supply Date</th><td id="show_supply_date"></td></tr>
                     <tr><th>Added By</th><td id="show_added_by"></td></tr>
                 </tbody>
@@ -275,13 +278,19 @@
 @endsection
 
 @section('footer_js_links')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
     <!-- Buttons -->
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/dataTables.buttons.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.bootstrap5.js"></script>
+    <script src="https://cdn.datatables.net/buttons/3.0.2/js/buttons.html5.js"></script>
+
+    <!-- Dependencies -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.html5.min.js"></script>
+
+    <!-- Optional: Responsive (if used) -->
+    <script src="https://cdn.datatables.net/responsive/3.0.2/js/dataTables.responsive.js"></script>
+    <script src="https://cdn.datatables.net/responsive/3.0.2/js/responsive.bootstrap5.js"></script>
+
+
 @endsection
 
 @section('footer_js')
@@ -303,7 +312,8 @@ $(function() {
     var table = $('#supply-table').DataTable({
         processing: true,
         serverSide: true,
-        dom: 'Bfrtip',
+        responsive: true,
+        dom: '',
         buttons: [
             {
                 extend: 'excelHtml5',
@@ -323,7 +333,6 @@ $(function() {
         columns: [
             { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
             { data: 'company_name', name: 'company_name' },
-            { data: 'location_name', name: 'location_name' },
             { data: 'product_name', name: 'product_name' },
             { data: 'quantity', name: 'quantity' },
             { data: 'unit_price', name: 'unit_price' },
@@ -357,6 +366,9 @@ $(function() {
         $('#create-errors').addClass('d-none').html('');
         $('#create_location_id').html('<option value="">-- select location --</option>');
         $('#create_total_amount').val('');
+        $('#stockInfo').text('');
+        $('#stockInfoNew').text('');
+
         modalCreate.show();
     });
 
@@ -386,18 +398,72 @@ $(function() {
             }
             recalcCreateTotal();
         });
+
+        const productId = pid;
+        if (!productId) {
+            $('#stockInfo').text('');
+            return;
+        }
+
+        $('#create_quantity').val('');
+
+        $.get(`/products/${productId}/stock`, function (data) {
+            console.log(data.stock_qty)
+            if(data.stock_qty>0){
+                $('#create_quantity').removeAttr('readonly');
+            }else{
+                $('#create_quantity').prop('readonly', true);
+            }
+            $('#stockInfo').text(`Available Stock: ${data.stock_qty}`);
+            $('#stockInfo').attr('stock_qty_current',data.stock_qty);
+        });    
     }
 
 
-    $('#create_product_id, #create_supply_date').on('change', fetchCreatePrice);
+    // when product or date changes -> fetch price
+    function fetchCreatePricewithDate() {
+        var pid = $('#create_product_id').val();
+        var date = $('#create_supply_date').val();
+        if (!pid) return;
+
+        $.get('/product-prices/by-product/' + pid, { date: date }, function(res){
+            if (res.price !== null) {
+                $('#create_unit_price').val(res.price);
+            }
+            recalcCreateTotal();
+        });
+        
+    }
+
+
+
+
+    $('#create_quantity').on('keyup',function(){
+        var qty = $(this).val();
+        var current_stock = $('#stockInfo').attr('stock_qty_current');
+        if(current_stock-qty<0){
+            $('#stockInfoNew').text('❌ Not enough stock!');
+            $('#stockInfoNew').addClass('text-danger');
+            $('#btnCreateSubmit').prop('disabled',true);
+            return;
+        }
+        $('#stockInfoNew').removeClass('text-danger');
+        $('#btnCreateSubmit').removeAttr('disabled');
+        $('#stockInfoNew').text('New available Stock: '+(parseFloat(current_stock)-qty));
+    })
+
+    $('#create_product_id').on('change', fetchCreatePrice);
+
+    $('#create_supply_date').on('change', fetchCreatePricewithDate);
 
     // live calc totals
     function recalcCreateTotal() {
         var q = parseFloat($('#create_quantity').val() || 0);
         var p = parseFloat($('#create_unit_price').val() || 0);
-        $('#create_total_amount').val((q * p).toFixed(4));
+        $('#create_total_amount').val((q * p).toFixed(2));
     }
     $('#create_quantity, #create_unit_price').on('input', recalcCreateTotal);
+    
 
     // Submit Create
     $('#formCreate').on('submit', function(e){
@@ -446,9 +512,18 @@ $(function() {
                 });
                 $('#edit_product_id').val(r.product_id);
                 $('#edit_quantity').val(r.quantity);
+
+                $('#edit_product_id').attr("data-original_edit_product_id",r.product_id);
+                $('#edit_quantity').attr("data-original_edit_quantity",r.quantity);
+
                 $('#edit_unit_price').val(r.unit_price);
-                $('#edit_total_amount').val((parseFloat(r.total_amount)||0).toFixed(4));
+                $('#edit_total_amount').val((parseFloat(r.total_amount)||0).toFixed(2));
                 $('#edit_supply_date').val(r.supply_date ? r.supply_date.substr(0,10) : '');
+
+                $('#stockInfoEdit').text('');
+                $('#stockInfoEditNew').text('');
+                availableStocks(r.product_id)
+
                 modalEdit.show();
             } else {
                 showAlert('danger','Could not load record.');
@@ -468,14 +543,81 @@ $(function() {
                 recalcEditTotal();
             }
         });
+
+        const productId = pid;
+        if (!productId) {
+            $('#stockInfo').text('');
+            return;
+        }
+
+        $('#edit_quantity').val('');
+
+        availableStocks(productId);
     }
 
-    $('#edit_product_id, #edit_supply_date').on('change', fetchEditPrice);
+    function availableStocks(productId){
+        $.get(`/products/${productId}/stock`, function (data) {
+            console.log(data.stock_qty)
+            if(data.stock_qty>0){
+                $('#edit_quantity').removeAttr('readonly');
+            }else{
+                $('#edit_quantity').prop('readonly', true);
+            }
+
+            $('#stockInfoEditNew').text(`Available Stock: ${data.stock_qty}`);
+            $('#stockInfoEditNew').attr('stock_qty_current',data.stock_qty);
+
+            
+        });  
+    }
+
+
+    $('#edit_quantity').on('keyup',function(){
+        var qty = $(this).val();
+        var current_stock = $('#stockInfoEditNew').attr('stock_qty_current');
+        var productId = $('#edit_product_id').val();
+
+        const original_product_id = $('#edit_product_id').attr("data-original_edit_product_id");
+        const original_product_quantity = $('#edit_quantity').attr("data-original_edit_quantity");
+
+        console.log(original_product_id,original_product_quantity);
+
+        if(original_product_id==productId){
+            current_stock = parseFloat(current_stock)+parseFloat(original_product_quantity);
+        }
+
+        if(parseFloat(current_stock)-qty<0){
+            $('#stockInfoEdit').text('❌ Not enough stock!');
+            $('#stockInfoEdit').addClass('text-danger');
+            $('#btnEditSubmit').prop('disabled',true);
+            return;
+        }
+        $('#stockInfoEdit').removeClass('text-danger');
+        $('#btnEditSubmit').removeAttr('disabled');
+        $('#stockInfoEdit').text('New available Stock: '+(parseFloat(current_stock)-parseFloat(qty)));
+    })
+
+    // edit product/date change -> fetch price (but do not overwrite if user already changed unit_price)
+    function fetchEditPricewithDate() {
+        var pid = $('#edit_product_id').val();
+        var date = $('#edit_supply_date').val();
+        if (!pid) return;
+
+        $.get('/product-prices/by-product/' + pid, { date: date }, function(res){
+            if (res.price !== null) {
+                $('#edit_unit_price').val(res.price);
+                recalcEditTotal();
+            }
+        });
+    }
+
+    $('#edit_product_id').on('change', fetchEditPrice);
+    $('#edit_supply_date').on('change', fetchEditPricewithDate);
 
     function recalcEditTotal() {
         var q = parseFloat($('#edit_quantity').val() || 0);
         var p = parseFloat($('#edit_unit_price').val() || 0);
-        $('#edit_total_amount').val((q * p).toFixed(4));
+        $('#edit_total_amount').val((q * p).toFixed(2));
     }
     $('#edit_quantity, #edit_unit_price').on('input', recalcEditTotal);
 
@@ -538,6 +680,7 @@ $(function() {
             })
             .fail(function(){ showAlert('danger','Delete failed.'); });
     });
+
 
 });
 </script>

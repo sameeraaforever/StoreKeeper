@@ -185,10 +185,6 @@
 </div>
 @endsection
 
-@section('footer_js_links')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-@endsection
 
 @section('footer_js')
 <script>
@@ -209,6 +205,7 @@ $(function() {
     var table = $('#locations-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: '{{ route("locations.index") }}',
             dataSrc: 'data'

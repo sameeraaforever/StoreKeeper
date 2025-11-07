@@ -26,7 +26,7 @@
                         <th>Name</th>
                         <th>Category</th>
                         <th>Unit</th>
-                        <th>Description</th>
+                        <th>Stock</th>
                         <th>Created At</th>
                         <th style="width:160px">Actions</th>
                     </tr>
@@ -162,7 +162,7 @@
                     <tr><th>Name</th><td id="show_name"></td></tr>
                     <tr><th>Category</th><td id="show_category"></td></tr>
                     <tr><th>Unit</th><td id="show_unit"></td></tr>
-                    <tr><th>Description</th><td id="show_description"></td></tr>
+                    <tr><th>Stock</th><td id="show_stock_qty"></td></tr>
                     <tr><th>Created</th><td id="show_created_at"></td></tr>
                 </tbody>
             </table>
@@ -174,12 +174,86 @@
   </div>
 </div>
 
+<!-- Stock In Modal -->
+<div class="modal fade" id="stockInModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="stockInForm">
+        @csrf
+        <input type="hidden" name="product_id" id="stock_product_id">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Stock In: <span id="stock_product_name"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <div id="stock-in-errors" class="alert alert-danger d-none"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Add Quantity</label>
+                <input type="number" step="0.001" min="0.001" name="quantity" id="stock_quantity" class="form-control" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Purchase Price (unit)</label>
+                <input type="number" step="0.0001" min="0" name="price" id="stock_price" class="form-control" autocomplete="off">
+                <div class="form-text">If product has no price, entering price is required. Otherwise leave same or change to create new price record.</div>
+            </div>
+
+            <p class="small text-muted">Note: Price start date will be set to today and previous active price will be ended (yesterday) if price changed.</p>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success" id="btnStockInSubmit">Add Stock</button>
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+
+
+
+<!-- Stock In Modal -->
+<div class="modal fade" id="stockOutModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="stockOutForm">
+        @csrf
+        <input type="hidden" name="stock_out_product_id" id="stock_out_product_id">
+
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Stock Out: <span id="stock_out_product_name"></span></h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <div id="stock_out_in-errors" class="alert alert-danger d-none"></div>
+
+            <div class="mb-3">
+                <label class="form-label">Out Quantity</label>
+                <input type="number" step="0.01" min="0.01" name="stock_out_quantity" id="stock_out_quantity" class="form-control" required>
+            </div>
+            <div class="mb-3" id="stock_out_current_quantity">
+                
+            </div>
+
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-success" id="btnStockOutSubmit">Stock Out</button>
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+
+
 @endsection
 
-@section('footer_js_links')
-    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
-@endsection
 
 @section('footer_js')
 <script>
@@ -200,6 +274,7 @@ $(function() {
     var table = $('#products-table').DataTable({
         processing: true,
         serverSide: true,
+        responsive: true,
         ajax: {
             url: '{{ route("products.index") }}',
             dataSrc: 'data'
@@ -209,7 +284,7 @@ $(function() {
             { data: 'name', name: 'name' },
             { data: 'category_name', name: 'category_name' },
             { data: 'unit', name: 'unit' },
-            { data: 'description', name: 'description' },
+            { data: 'stock_qty', name: 'stock_qty' },
             { data: 'created_at', name: 'created_at' },
             { data: 'actions', name: 'actions', orderable:false, searchable:false }
         ],
@@ -333,7 +408,7 @@ $(function() {
                     $('#show_name').text(res.product.name || '-');
                     $('#show_category').text(res.product.category ? res.product.category.name : '-');
                     $('#show_unit').text(res.product.unit || '-');
-                    $('#show_description').text(res.product.description || '-');
+                    $('#show_stock_qty').text(res.product.stock_qty || '-');
                     $('#show_created_at').text(res.product.created_at_formatted || '-');
                     modalShow.show();
                 } else {
@@ -345,6 +420,215 @@ $(function() {
             }
         });
     });
+
+
+    // Open Stock In modal
+    $(document).on('click', '.btn-stock', function() {
+        var id = $(this).data('id');
+        var name = $(this).data('name') || '';
+        $('#stock_product_id').val(id);
+        $('#stock_product_name').text(name);
+        $('#stock_quantity').val('');
+        $('#stock_price').val('');
+        $('#stock_out_in-errors').addClass('d-none').html('');
+
+        // Fetch current price (if any) and pre-fill
+        $.ajax({
+            url: '{{ url('/product-prices/get-by-product') }}/' + id,
+            method: 'GET',
+            success: function(res) {
+                if (res.status === 'success' && res.price !== undefined && res.price !== null) {
+                    $('#stock_price').val(res.price);
+                } else {
+                    // no active price -> price required (we will validate server-side)
+                    $('#stock_price').val('');
+                }
+                // Show modal after price fetch
+                var modal = new bootstrap.Modal(document.getElementById('stockInModal'));
+                modal.show();
+            },
+            error: function(xhr) {
+                // still show modal but leave price blank
+                var modal = new bootstrap.Modal(document.getElementById('stockInModal'));
+                modal.show();
+            }
+        });
+    });
+
+
+
+    // Submit Stock In
+    $('#stockInForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#btnStockInSubmit').prop('disabled', true);
+        $('#stock-in-errors').addClass('d-none').html('');
+
+        var formData = $(this).serialize();
+
+        $.ajax({
+            url: '{{ route("products.stock.in") }}',
+            method: 'POST',
+            data: formData,
+            success: function(res) {
+                if (res.status === 'success') {
+                    // hide modal, reload datatable row
+                    $('#stockInModal').modal('hide');
+                    // reset
+                    $('#stockInForm')[0].reset();
+
+                    // reload DataTable (assuming your table variable is named 'table' or globally available)
+                    if (typeof table !== 'undefined') {
+                        table.ajax.reload(null, false);
+                    } else {
+                        $('.dataTable').DataTable().ajax.reload(null, false);
+                    }
+
+                    // show message
+                    var html = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + (res.message || 'Stock added') +
+                        '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+                    $('.alerts').html(html);
+                    setTimeout(function(){ $('.alerts .alert').alert('close'); }, 5000);
+                } else {
+                    $('#stock-in-errors').removeClass('d-none').html(res.message || 'Error');
+                }
+            },
+            error: function(xhr) {
+                if (xhr.status === 422) {
+                    var body = xhr.responseJSON;
+                    if (body.errors) {
+                        var html = '<ul class="mb-0">';
+                        $.each(body.errors, function(k, v) {
+                            html += '<li>' + v[0] + '</li>';
+                        });
+                        html += '</ul>';
+                        $('#stock-in-errors').removeClass('d-none').html(html);
+                    } else if (body.message) {
+                        $('#stock-in-errors').removeClass('d-none').html(body.message);
+                    } else {
+                        $('#stock-in-errors').removeClass('d-none').html('Validation failed');
+                    }
+                } else {
+                    $('#stock-in-errors').removeClass('d-none').html('Server error. Try again.');
+                }
+            },
+            complete: function() {
+                $('#btnStockInSubmit').prop('disabled', false);
+            }
+        });
+    });
+
+
+    // Open Stock In modal
+    $(document).on('click', '.btn-stock-out', function() {
+        var id = $(this).data('id');
+        var name = $(this).data('name') || '';
+        $('#stock_out_product_id').val(id);
+        $('#stock_out_product_name').text(name);
+        $('#stock_out_quantity').val('');
+        $('#stock_out_in-errors').addClass('d-none').html('');
+
+        
+
+        $.ajax({
+            url: `/products/${id}/stock`,
+            method: 'GET',
+            success: function(res) {
+                // Fetch current price (if any) and pre-fill
+                $('#stock_out_current_quantity').html("Current stock - "+res.stock_qty);
+                $('#stock_out_current_quantity').attr("qty_current",res.stock_qty);
+                var modal = new bootstrap.Modal(document.getElementById('stockOutModal'));
+                modal.show();
+            }
+        });
+
+        
+    });
+
+
+    $('#stock_out_quantity').on('keyup',function(){
+        var qty_out = $(this).val();
+        var current_qty = $('#stock_out_current_quantity').attr('qty_current');
+        if(current_qty-qty_out<=0){
+            $('#stock_out_in-errors').removeClass('d-none').html('❌ Not enough stock to out!').addClass('text-danger');
+            $('#stock_out_quantity').val('');
+            $('#btnStockOutSubmit').prop('disabled',true)
+            return ;
+        }else{
+            $('#stock_out_in-errors').addClass('d-none').html('');
+            $('#btnStockOutSubmit').prop('disabled',false)
+        }
+    })
+
+    // Submit Stock In
+    $('#stockOutForm').on('submit', function(e) {
+        e.preventDefault();
+        $('#btnStockOutSubmit').prop('disabled', true);
+        $('#stock_out_in-errors').addClass('d-none').html('');
+
+        var current_qty = $('#stock_out_current_quantity').attr('qty_current');
+        var qty_out = $('#stock_out_quantity').val();
+        if(current_qty-qty_out<=0){
+            $('#stock_out_in-errors').removeClass('d-none').html('❌ Not enough stock to out!').addClass('text-danger');
+            $('#stock_out_quantity').val('');
+            return ;
+        }else{
+            $('#stock_out_in-errors').addClass('d-none').html('');
+        }
+        var formData = $(this).serialize();
+
+                $.ajax({
+                    url: '{{ route("products.stock.out") }}',
+                    method: 'POST',
+                    data: formData,
+                    success: function(res) {
+                        if (res.status === 'success') {
+                            // hide modal, reload datatable row
+                            $('#stockOutModal').modal('hide');
+                            // reset
+                            $('#stockOutForm')[0].reset();
+
+                            // reload DataTable (assuming your table variable is named 'table' or globally available)
+                            if (typeof table !== 'undefined') {
+                                table.ajax.reload(null, false);
+                            } else {
+                                $('.dataTable').DataTable().ajax.reload(null, false);
+                            }
+
+                            // show message
+                            var html = '<div class="alert alert-success alert-dismissible fade show" role="alert">' + (res.message || 'Stock added') +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button></div>';
+                            $('.alerts').html(html);
+                            setTimeout(function(){ $('.alerts .alert').alert('close'); }, 5000);
+                        } else {
+                            $('#stock_out_in-errors').removeClass('d-none').html(res.message || 'Error');
+                        }
+                    },
+                    error: function(xhr) {
+                        if (xhr.status === 422) {
+                            var body = xhr.responseJSON;
+                            if (body.errors) {
+                                var html = '<ul class="mb-0">';
+                                $.each(body.errors, function(k, v) {
+                                    html += '<li>' + v[0] + '</li>';
+                                });
+                                html += '</ul>';
+                                $('#stock_out_in-errors').removeClass('d-none').html(html);
+                            } else if (body.message) {
+                                $('#stock_out_in-errors').removeClass('d-none').html(body.message);
+                            } else {
+                                $('#stock_out_in-errors').removeClass('d-none').html('Validation failed');
+                            }
+                        } else {
+                            $('#stock_out_in-errors').removeClass('d-none').html('Server error. Try again.');
+                        }
+                    },
+                    complete: function() {
+                        $('#btnStockOutSubmit').prop('disabled', false);
+                    }
+                });
+
+
+    })
 
     // Delete (with confirm)
     $('#products-table').on('click', '.btn-delete', function(){

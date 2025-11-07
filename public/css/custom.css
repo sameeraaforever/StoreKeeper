@@ -179,9 +179,14 @@ a:focus {
 #sidebar ul li a i {
     position: relative;
     margin-right: 10px;
-    top: 5px;
+    top: 0px;
 	color: #555555;
     margin-left: 10px;
+}
+
+#sidebar ul li.active>a {
+    color: #333;
+    background-color: rgb(32 150 243 / 36%);
 }
 
 
@@ -357,6 +362,7 @@ td,th,.table > thead > tr > th{
     border-radius: 6px;
     color: rgba(0,0,0, 0.87);
     background: #fff;
+    border-radius: 8px !important;
 }
 
 .card-stats .card-header {
@@ -918,4 +924,51 @@ footer .copyright {
 /*modal footer*/
 .modal-footer{
     border-top:none !important;
+}
+
+.alert{
+    padding: 0.5rem;
+}
+.modal-content{
+    font-size: 0.95rem;
+}
+
+/*custom card*/
+
+.card.card.custom-card {
+    border-radius: 0.5rem;
+    border: 0;
+    background-color: #fff;
+    box-shadow: 0 0.125rem 0 rgba(10, 10, 10, .04);
+    position: relative;
+    margin-block-end: 1.5rem;
+    width: 100%;
+}
+.card.card.custom-card .avatar {
+    position: relative;
+    height: 2.0625rem;
+    width: 2.0625rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    color: #fff;
+    font-weight: 500;
+}
+
+.bg-primary-transparent {
+    background-color: rgba(27, 79, 219,0.1) !important;
+    color: rgba(27, 79, 219, 1) !important;
+}
+
+.custom-card-title{
+    font-size: 0.9rem;
+}
+
+.card-percentage{
+    font-size: 15px;
+}
+
+.card-th {
+  text-align: center;
 }

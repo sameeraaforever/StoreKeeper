@@ -24,7 +24,7 @@ class SupplyRecordController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $query = SupplyRecord::with(['company','location','product','creator'])->select('supply_records.*');
+            $query = SupplyRecord::with(['company','location','product','creator'])->select('supply_records.*')->latest('created_at');
 
             // Filters
             if ($request->filled('company_id')) {
@@ -43,10 +43,19 @@ class SupplyRecordController extends Controller
 
             return DataTables::eloquent($query)
                 ->addIndexColumn() // <-- This generates the auto ID column
-                ->addColumn('company_name', fn($r) => $r->company->name ?? '')
-                ->addColumn('location_name', fn($r) => $r->location->address_line ?? '')
+                
+                ->addColumn('company_name', function ($row) {
+                    $location = !empty($row->location->city)?"<div class='text-sm'>".$row->location->city."<div>":'';
+                    return ($row->company->name).$location;
+                })
                 ->addColumn('product_name', fn($r) => $r->product->name ?? '')
-                ->addColumn('total_amount_format', fn($r) => number_format($r->total_amount, 4))
+                ->addColumn('total_amount_format', fn($r) => number_format($r->total_amount, 2))
+                ->addColumn('quantity', function ($r) {
+                            $q = $r->quantity;
+                            return fmod($q, 1) == 0
+                                ? number_format($q, 0)
+                                : rtrim(rtrim(number_format($q, 3, '.', ''), '0'), '.');
+                        })
                 ->addColumn('added_by', fn($r) => $r->creator->name ?? '')
                 ->addColumn('created_at', function ($row) {
                     return Carbon::parse($row->created_at)->format('Y F j, h:i A');
@@ -57,7 +66,14 @@ class SupplyRecordController extends Controller
                     $delBtn  = '<button class="btn btn-sm btn-soft-danger btn-delete" data-id="'.$row->id.'"><i class="fa-solid fa-trash"></i></button>';
                     return '<div class="d-flex justify-content-center gap-2">'.$showBtn.$editBtn.$delBtn.'</div>';
                 })
-                ->rawColumns(['actions'])
+                ->filterColumn('company_name', function ($query, $keyword) {
+                    $query->whereHas('company', function ($q) use ($keyword) {
+                        $q->where('name', 'like', "%{$keyword}%");
+                    })->orWhereHas('location', function ($q) use ($keyword) {
+                        $q->where('city', 'like', "%{$keyword}%");
+                    });
+                })
+                ->rawColumns(['actions','company_name'])
                 ->make(true);
         }
 
@@ -91,10 +107,15 @@ class SupplyRecordController extends Controller
 
         // force remove total_amount if someone tries to send it
         unset($data['total_amount']);
-
+        $data['total_amount'] = $data['unit_price'] * $data['quantity'];
+        
         $data['created_by'] = Auth::id();
 
         $record = SupplyRecord::create($data);
+
+        //update product stock_qty
+        $product = Product::find($request->product_id);
+        $product->update(['stock_qty'=>($product->stock_qty)-$request->quantity]);
 
         return response()->json(['status'=>'success','message'=>'Supply record created.','record'=>$record]);
     }
@@ -148,9 +169,25 @@ class SupplyRecordController extends Controller
 
         unset($data['total_amount']); // do not allow override
 
+        $data['total_amount'] = $data['unit_price']*$data['quantity'];
+
         $data['updated_by'] = Auth::id();
 
+        //get selected supply record for stock adjustment
+        $getSelectedSupplyRecord = SupplyRecord::find($request->id);
+
         $supplyRecord->update($data);
+
+        //update product stock_qty get before product id and qty for correct stock in and out
+        $newSelectedproduct = Product::find($request->product_id);
+        
+        if($getSelectedSupplyRecord->product_id == $request->product_id){
+            $newSelectedproduct->update(['stock_qty'=>($newSelectedproduct->stock_qty)+($getSelectedSupplyRecord->quantity)-$request->quantity]);
+        }else{
+            $oldSelectedProduct = Product::find($getSelectedSupplyRecord->product_id);
+            $newSelectedproduct->update(['stock_qty'=>($newSelectedproduct->stock_qty)-$request->quantity]);
+            $oldSelectedProduct->update(['stock_qty'=>($oldSelectedProduct->stock_qty)+$getSelectedSupplyRecord->quantity]);
+        }
 
         return response()->json(['status'=>'success','message'=>'Supply record updated.','record'=>$supplyRecord]);
     }
@@ -162,6 +199,11 @@ class SupplyRecordController extends Controller
     {
         $supplyRecord->deleted_by = Auth::id();
         $supplyRecord->save();
+        
+        //update product stock_qty
+        $product = Product::find($supplyRecord->product_id);
+        $product->update(['stock_qty'=>($product->stock_qty)+$supplyRecord->quantity]);
+
         $supplyRecord->delete();
 
         return response()->json(['status'=>'success','message'=>'Supply record deleted.']);

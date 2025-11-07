@@ -12,7 +12,8 @@ class SupplyRecord extends Model
     protected $fillable = [
         'company_id','location_id','product_id',
         'quantity','unit_price','supply_date',
-        'created_by','updated_by','deleted_by'
+        'created_by','updated_by','deleted_by',
+        'total_amount'
     ];
 
     protected $dates = ['supply_date'];

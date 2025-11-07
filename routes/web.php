@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplyRecordController;
@@ -13,7 +14,22 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::middleware('admin')->get('/admin-test', function () {
+    return 'Admin Access Confirmed';
+});
+
 Auth::routes();
+
+Route::middleware(['auth', 'admin'])
+    ->prefix('admin')
+    ->name('admin.')
+    ->group(function () {
+        Route::get('users', [UserController::class, 'index'])->name('users.index');
+        Route::post('users', [UserController::class, 'store'])->name('users.store');
+        Route::get('users/{id}/edit', [UserController::class, 'edit'])->name('users.edit');
+        Route::post('users/{id}', [UserController::class, 'update'])->name('users.update');
+        Route::delete('users/{id}', [UserController::class, 'destroy'])->name('users.destroy');
+    });
 
 // Dashboard/Home
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
@@ -24,7 +40,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('supply-records/locations/{company}', [SupplyRecordController::class, 'getLocations']);
     Route::get('/product-prices/by-product/{productId}', [ProductPriceController::class, 'getByProduct'])
     ->name('product-prices.by-product');
-
+    Route::post('/products/stock-in', [ProductController::class, 'stockIn'])->name('products.stock.in');
+    Route::post('/products/stock-out', [ProductController::class, 'stockOut'])->name('products.stock.out');
+    Route::get('/product-prices/get-by-product/{productId}', [ProductPriceController::class, 'getByProduct'])
+    ->name('product-prices.get-by-product');
+    Route::get('/products/{product}/stock', [ProductController::class, 'getStock'])
+    ->name('products.stock');
 
     // ✅ Companies CRUD
     Route::resource('companies', CompanyController::class);

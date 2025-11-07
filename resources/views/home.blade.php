@@ -1,206 +1,190 @@
 @extends('layouts.app')
 
+@section('header_css')
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/apexcharts@4.4.0/dist/apexcharts.css">
+    <style>
+        .stat-card { min-height: 120px; }
+        .chart-card { min-height: 360px; }
+    </style>
+@endsection
+
 @section('main_content')
 
 
                 
-                        <div class="row">
-                            <div class="col-lg-3 col-md-6 col-6">
-                                <div class="card card-stats">
+                        @include('components.card')
+
+                    
+                        <!-- start 2nd cards-->
+                        <div class="row g-3">
+                            <div class="col-lg-7">
+                                <div class="card chart-card">
                                     <div class="card-header">
-                                        <div class="icon icon-warning">
-                                            <i class="fa-solid fa-calendar-check"></i>
-                                        </div>
+                                        <h5 class="card-title">Monthly Supply Cost (Last 12 months)</h5>
                                     </div>
-                                    <div class="card-content">
-                                        <p class="category"><strong>Visits</strong></p>
-                                        <h3 class="card-title">70,340</h3>
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="stats">
-                                            <i class="fa-solid fa-calendar-days"></i>
-                                            <a href="#pablo">See detailed report</a>
-                                        </div>
+                                    <div class="card-body">
+                                        <div id="chartSupplyCost"></div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-lg-3 col-md-6 col-6">
-                                <div class="card card-stats">
+
+                            <div class="col-lg-5">
+                                <div class="card chart-card">
                                     <div class="card-header">
-                                        <div class="icon icon-rose">
-                                            <i class="fa-solid fa-calendar-check"></i>
-    
-                                        </div>
+                                        <h5 class="card-title">Top 5 Companies by Spend (This Year)</h5>
                                     </div>
-                                    <div class="card-content">
-                                        <p class="category"><strong>Orders</strong></p>
-                                        <h3 class="card-title">102</h3>
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="stats">
-                                            <i class="fa-solid fa-calendar-days"></i>Product-wise sales
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-6">
-                                <div class="card card-stats">
-                                    <div class="card-header">
-                                        <div class="icon icon-success">
-                                            <i class="fa-solid fa-calendar-check"></i>
-                                        </div>
-                                    </div>
-                                    <div class="card-content">
-                                        <p class="category"><strong>Revenue</strong></p>
-                                        <h3 class="card-title">$2,310</h3>
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="stats">
-                                            <i class="fa-solid fa-calendar-days"></i>Weekly sales
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-lg-3 col-md-6 col-6">
-                                <div class="card card-stats">
-                                    <div class="card-header">
-                                        <div class="icon icon-info">
-                                            <i class="fa-solid fa-calendar-check"></i>
-                                        </div>
-                                    </div>
-                                    <div class="card-content">
-                                        <p class="category"><strong>Followers</strong></p>
-                                        <h3 class="card-title">+245</h3>
-                                    </div>
-                                    <div class="card-footer">
-                                        <div class="stats">
-                                            <i class="fa-solid fa-calendar-days"></i> Just Updated
-                                        </div>
+                                    <div class="card-body">
+                                        <div id="chartTopCompanies"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
+                        <!-- End second card-->
+
+
+
                         
-                        
-                        <div class="row ">
-                            <div class="col-lg-7 col-md-12">
-                                <div class="card" style="min-height: 485px">
-                                    <div class="card-header card-header-text">
-                                        <h4 class="card-title">Employees Stats</h4>
-                                        <p class="category">New employees on 15th December, 2016</p>
-                                    </div>
-
-
-                                    
-
-                                    <div class="card-content table-responsive">
-
-                                        <table class="table table-hover">
-                                            <thead class="text-primary">
-                                                <tr><th>ID</th>
-                                                <th>Name</th>
-                                                <th>Salary</th>
-                                                <th>Country</th>
-                                            </tr></thead>
-                                            <tbody>
-                                                <tr>
-                                                    <td>1</td>
-                                                    <td>Bob Williams</td>
-                                                    <td>$23,566</td>
-                                                    <td>USA</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>2</td>
-                                                    <td>Mike Tyson</td>
-                                                    <td>$10,200</td>
-                                                    <td>Canada</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>3</td>
-                                                    <td>Tim Sebastian</td>
-                                                    <td>$32,190</td>
-                                                    <td>Netherlands</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>4</td>
-                                                    <td>Philip Morris</td>
-                                                    <td>$31,123</td>
-                                                    <td>Korea, South</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>5</td>
-                                                    <td>Minerva Hooper</td>
-                                                    <td>$23,789</td>
-                                                    <td>South Africa</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>6</td>
-                                                    <td>Hulk Hogan</td>
-                                                    <td>$43,120</td>
-                                                    <td>Netherlands</td>
-                                                </tr>
-                                                <tr>
-                                                    <td>7</td>
-                                                    <td>Angelina Jolie </td>
-                                                    <td>$12,140</td>
-                                                    <td>Australia</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </div>
-                            </div>
-                          
-                            <div class="col-lg-5 col-md-12">
-                                <div class="card" style="min-height: 485px">
-                                    <div class="card-header card-header-text">
-                                        <h4 class="card-title">Activities</h4>
-                                    </div>
-                                    <div class="card-content">
-                                        <div class="streamline">
-                                            <div class="sl-item sl-primary">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">5 mins ago</small>
-                                                    <p>Williams has just joined Project X</p>
-                                                </div>
-                                            </div>
-                                            <div class="sl-item sl-danger">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">25 mins ago</small>
-                                                    <p>Jane has sent a request for access to the project folder</p>
-                                                </div>
-                                            </div>
-                                            <div class="sl-item sl-success">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">40 mins ago</small>
-                                                    <p>Kate added you to her team</p>
-                                                </div>
-                                            </div>
-                                            <div class="sl-item">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">45 minutes ago</small>
-                                                    <p>John has finished his task</p>
-                                                </div>
-                                            </div>
-                                            <div class="sl-item sl-warning">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">55 mins ago</small>
-                                                    <p>Jim shared a folder with you</p>
-                                                </div>
-                                            </div>
-                                            <div class="sl-item">
-                                                <div class="sl-content">
-                                                    <small class="text-muted">60 minutes ago</small>
-                                                    <p>John has finished his task</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-    
-                                </div>
-                            </div>
+            <!-- Row 3: Top Products Insights -->
+            <div class="row">
+                <!-- Top 10 Products Table -->
+                <div class="col-lg-7 col-md-12">
+                    <div class="card" style="min-height: 485px">
+                        <div class="card-header card-header-text">
+                            <h4 class="card-title">Top 10 Products (By Supply Cost)</h4>
+                            <p class="category">Based on all time supply history</p>
                         </div>
+
+                        <div class="card-content table-responsive">
+                            <table class="table table-hover">
+                                <thead class="text-primary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Product</th>
+                                        <th>Latest Price (Rs)</th>
+                                        <th>Total Qty</th>
+                                        <th>Total Cost (Rs)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($top10Products as $index => $item)
+                                        <tr>
+                                            <td>{{ $index + 1 }}</td>
+                                            <td>{{ $item->product->name ?? 'N/A' }}</td>
+                                            <td>
+                                                @if($item->product->activePrice)
+                                                    {{ number_format($item->product->activePrice->price, 2) }}
+                                                @else
+                                                    <span class="text-muted">No price</span>
+                                                @endif
+                                            </td>
+                                            <td>@php
+                                                
+                                                $q = $item->total_qty;
+                                                echo fmod($q, 1) == 0
+                                                    ? number_format($q, 0)
+                                                    : rtrim(rtrim(number_format($q, 3, '.', ''), '0'), '.');
+                                                @endphp </td>
+                                            <td>{{ number_format($item->total_cost, 2) }}</td>
+                                        </tr>
+                                    @empty
+                                        <tr>
+                                            <td colspan="5" class="text-center text-muted">No records found</td>
+                                        </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Top 5 Products Pie Chart -->
+                <div class="col-md-5">
+                    <div class="card shadow-sm">
+                        <div class="card-header">
+                            <strong>Top 5 Products Breakdown</strong>
+                        </div>
+                        <div class="card-body">
+                            <div id="chartProductsSupplied" style="min-height:350px;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
                         
                         
 
-     @endsection                   
+     @endsection             
+     
+     @section('footer_js_links')
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts@4.4.0"></script>
+    @endsection
+
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Data from controller
+    var months = {!! json_encode($months) !!};
+    var supplyCostSeries = {!! json_encode($supplyCostSeries) !!};
+    var productsSuppliedSeries = {!! json_encode($productsSuppliedSeries) !!};
+    var topCompaniesLabels = {!! json_encode($topCompaniesLabels) !!};
+    var topCompaniesSeries = {!! json_encode($topCompaniesSeries) !!};
+
+    // 1) Monthly Supply Cost - area/line
+    var optionsCost = {
+        chart: { type: 'area', height: 350, toolbar: { show: true } },
+        series: [{ name: 'Supply Cost', data: supplyCostSeries }],
+        xaxis: { categories: months },
+        yaxis: { labels: { formatter: function (val) { return val ? `Rs ${val.toFixed(0)}` : 'Rs 0';  } } },
+        tooltip: { y: { formatter: (val) => `Rs ${parseFloat(val).toFixed(2)}` } },
+        stroke: { curve: 'smooth' },
+        fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.6, opacityTo: 0.1 } },
+        theme: { mode: 'light' },
+    };
+    var chartCost = new ApexCharts(document.querySelector("#chartSupplyCost"), optionsCost);
+    chartCost.render();
+
+    // // 2) Products Supplied - column
+    // var optionsQty = {
+    //     chart: { type: 'bar', height: 320 },
+    //     series: [{ name: 'Qty Supplied', data: productsSuppliedSeries }],
+    //     xaxis: { categories: months },
+    //     yaxis: { labels: { formatter: function(val){ return val ? val.toFixed(0) : '0'; } } },
+    //     plotOptions: { bar: { columnWidth: '60%' } },
+    //     theme: { mode: 'light' },
+    // };
+    // var chartQty = new ApexCharts(document.querySelector("#chartProductsSupplied"), optionsQty);
+    // chartQty.render();
+
+    // 3) Top Companies - horizontal bar
+    var optionsCompanies = {
+        chart: { type: 'bar', height: 320 },
+        series: [{ name: 'Spend', data: topCompaniesSeries }],
+        xaxis: { labels: { formatter: function (val) { return val ? `$${parseFloat(val).toFixed(2)}` : '$0.00' } } },
+        plotOptions: { bar: { horizontal: false } },
+        dataLabels: { enabled: false },
+        xaxis: { categories: topCompaniesLabels },
+        theme: { mode: 'light' },
+    };
+    var chartCompanies = new ApexCharts(document.querySelector("#chartTopCompanies"), optionsCompanies);
+    chartCompanies.render();
+
+
+    
+            const pieSeries = @json($pieSeries);
+            const pieLabels = @json($pieLabels);
+
+            // ✅ Top 5 Products Pie Chart
+            new ApexCharts(document.querySelector("#chartProductsSupplied"), {
+                chart: { type: 'pie', height: 350 },
+                series: pieSeries,
+                labels: pieLabels,
+                legend: { position: 'bottom' },
+                theme: { mode: 'light' }
+            }).render();
+
+
+            
+
+});
+
+</script>

@@ -9,9 +9,9 @@ class Product extends Model
 {
     use SoftDeletes;
 
-    protected $fillable = ['name','category_id','unit','description'];
+    protected $fillable = ['name','category_id','unit','description','stock_qty'];
 
-    
+
     public function prices()
     {
         return $this->hasMany(ProductPrice::class);
@@ -25,5 +25,14 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(\App\Models\Category::class, 'category_id');
+    }
+
+    public function activePrice()
+    {
+        return $this->hasOne(\App\Models\ProductPrice::class)
+                    ->where(function($q){
+                        $q->whereNull('end_date')
+                        ->orWhere('end_date', '>=', now()->toDateString());
+                    })->orderByDesc('start_date');
     }
 }

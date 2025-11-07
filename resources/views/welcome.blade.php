@@ -30,7 +30,7 @@
 <body>
 
   <div class="login-container">
-    <h2>Welcome Back 👋</h2>
+    <h2>Welcome to StoreKeeper 👋</h2>
     <form method="POST" action="{{ route('login') }}">
         @csrf
       <div class="input-group">
@@ -47,18 +47,7 @@
                 <a href="{{ route('password.request') }}">Forgot password?</a>
             @endif
         </p>
-        <p>
-            
-            Don’t have an account? 
-            
-            @if (Route::has('register'))
-                <a
-                    href="{{ route('register') }}"
-                    class="inline-block px-5 py-1.5 dark:text-[#EDEDEC] border-[#19140035] hover:border-[#1915014a] border text-[#1b1b18] dark:border-[#3E3E3A] dark:hover:border-[#62605b] rounded-sm text-sm leading-normal">
-                    Sign up
-                </a>
-            @endif
-        </p>
+
       </div>
     </form>
   </div>
